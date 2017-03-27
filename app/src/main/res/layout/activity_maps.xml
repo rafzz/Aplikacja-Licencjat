@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_maps"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<fragment
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="basiclocationsample.sample.location.gms.android.google.com.explorer.MapsActivity" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="normal"
+        android:onClick="snapMapFragment"
+        app:srcCompat="?android:attr/actionModeCopyDrawable"
+        android:id="@+id/snapMapFragment"
+        app:backgroundTint="@android:color/holo_green_light"
+        app:rippleColor="?attr/colorButtonNormal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="  Snapshot  "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/snapMapLable"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/snapMapFragment"
+        android:layout_toStartOf="@+id/snapMapFragment"
+        android:layout_marginBottom="19dp"
+        android:background="@android:drawable/progress_horizontal"
+        android:textAllCaps="false" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="normal"
+
+        app:srcCompat="?android:attr/actionModeFindDrawable"
+        android:id="@+id/loadMapFregment"
+        android:onClick="loadMapFragment"
+        app:backgroundTint="@android:color/holo_green_light"
+        android:layout_above="@+id/snapMapFragment"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text=" Your Maps "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/loadMapFregment"
+        android:layout_toLeftOf="@+id/loadMapFregment"
+        android:layout_toStartOf="@+id/loadMapFregment"
+        android:layout_marginTop="17dp"
+        android:id="@+id/loadMapFregmentLable"
+        android:background="@android:drawable/progress_horizontal" />
+
+    <Button
+        android:text="Save"
+        android:textSize="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/setMapName"
+        android:id="@+id/Save"
+        android:onClick="saveMapFragment"
+        android:visibility="invisible"
+        android:layout_toLeftOf="@+id/snapMapLable" />
+
+    <EditText
+        android:hint="name"
+        android:textSize="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="165dp"
+        android:id="@+id/setMapName"
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/loadMapFregmentLable"
+        android:layout_alignLeft="@+id/Save"
+        android:layout_alignStart="@+id/Save"
+        android:background="@android:color/holo_green_light" />
+
+</RelativeLayout>
