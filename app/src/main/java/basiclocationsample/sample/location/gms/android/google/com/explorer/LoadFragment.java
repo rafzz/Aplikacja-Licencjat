@@ -37,6 +37,7 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
 
     public void loadDB(){
         int id;
+        String name;
         double lat;
         double lng;
         float zoom;
@@ -51,14 +52,15 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
 
         while(cursor.moveToNext()){
             id = cursor.getInt(0);
-            lat = cursor.getDouble(1);
-            lng = cursor.getDouble(2);
-            zoom = cursor.getFloat(3);
+            name = cursor.getString(1);
+            lat = cursor.getDouble(2);
+            lng = cursor.getDouble(3);
+            zoom = cursor.getFloat(4);
             target = new LatLng(lat,lng);
 
             TextView tv = new TextView(this);
 
-            tv.setText(id+"_"+String.valueOf(zoom)+"_"+target.toString());
+            tv.setText(id+name+"_"+String.valueOf(zoom)+"_"+target.toString());
 
             TableRow tableRow = new TableRow(this);
             tableRow.addView(tv);
