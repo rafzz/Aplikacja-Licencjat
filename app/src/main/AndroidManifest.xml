@@ -37,7 +37,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoadFragment"></activity>
+        <activity android:name=".LoadFragment" />
+        <activity
+            android:name=".RecordMapsActivity"
+            android:label="@string/title_activity_record_maps"></activity>
     </application>
 
 </manifest>

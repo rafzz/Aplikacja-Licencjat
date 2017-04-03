@@ -24,7 +24,7 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
 
 
         public Database(Context context) {
-            super(context, DB_NAME, null, 5);
+            super(context, DB_NAME, null, 6);
         }
 
         @Override
@@ -65,6 +65,12 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
             SQLiteDatabase dataBase = getReadableDatabase();
             Cursor cursor = dataBase.query(TABLE_NAME, column, null, null, null, null, null);
             return cursor;
+        }
+
+        public Cursor getRowOnIndex(int Id){
+            //TODO
+
+            return null;
         }
 
         @Deprecated

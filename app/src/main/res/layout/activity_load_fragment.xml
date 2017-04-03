@@ -5,24 +5,38 @@
 
 
 
-
-    <TableLayout
-        android:id="@+id/tableLayout"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:layout_below="@+id/button2">
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    </TableLayout>
+            <RadioGroup
+
+                android:id="@+id/tableLayout"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/button2">
+
+
+
+            </RadioGroup>
+        </ScrollView>
+    </LinearLayout>
 
     <Button
-        android:text="Button"
+        android:text="Load"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
+        android:onClick="loadMapToMain"
         android:layout_alignParentStart="true"
         android:id="@+id/button2" />
 
