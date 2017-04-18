@@ -2,6 +2,7 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableRow;
@@ -20,6 +22,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.plus.model.people.Person;
 
 public class LoadFragment extends AppCompatActivity implements OnMapReadyCallback{
@@ -54,6 +57,7 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
 
 
         database = new Database(this);
+
         Cursor cursor = database.writeAllData();
 
         layout = (ViewGroup) findViewById(R.id.tableLayout);
@@ -85,8 +89,6 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
             layout.addView(radioButton);
 
 
-
-
         }
     }
 
@@ -107,6 +109,10 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
                     new LatLng(bundle.getDouble("lat"),
                             bundle.getDouble("lng")),
                     bundle.getFloat("zoom")));
+
+           // RadioGroup radioGroup = (RadioGroup) findViewById(R.id.tableLayout);
+            //Button b = (Button) findViewById(R.id.button2);
+            //b.setText(String.valueOf(radioGroup.getCheckedRadioButtonId()));
         }
     };
 
@@ -129,6 +135,8 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
         */
         intent.putExtra("id",radioGroup.getCheckedRadioButtonId());
 
+
+
         startActivity(intent);
 
 
@@ -149,6 +157,7 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
         googleMap.getUiSettings().setScrollGesturesEnabled(false);
         googleMap.getUiSettings().setZoomGesturesEnabled(false);
 
-
     }
+
+
 }

@@ -18,11 +18,11 @@
         android:text="ToggleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textOn="Stop"
+        android:textOff="Start"
+        android:id="@+id/toggleButton"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:textOn="Start"
-        android:textOff="Stop"
-        android:id="@+id/toggleButton" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

@@ -1,17 +1,25 @@
 package basiclocationsample.sample.location.gms.android.google.com.explorer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.FloatMath;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,13 +34,22 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
-public class RecordMapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class RecordMapsActivity extends FragmentActivity
+        implements OnMapReadyCallback,
+        LocationListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener{
 
     private GoogleMap mMap;
     private Database database;
     private GoogleApiClient mGoogleApiClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,25 +68,35 @@ public class RecordMapsActivity extends FragmentActivity implements OnMapReadyCa
                     .build();
         }
 
+
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mGoogleApiClient.connect();
+
     }
+
+    private Intent intent;
 
     public void loadDB() {
         double lat;
         double lng;
         float zoom;
 
-        Intent intent = getIntent();
+        intent = getIntent();
 
         int id = intent.getExtras().getInt("id");
 
+        ToggleButton but = (ToggleButton) findViewById(R.id.toggleButton);
+        but.setText(String.valueOf(id));
+
         database = new Database(this);
         Cursor cursor = database.writeAllData();
+
+        String path;
 
         while (cursor.moveToNext()) {
 
@@ -78,6 +105,22 @@ public class RecordMapsActivity extends FragmentActivity implements OnMapReadyCa
                 lng = cursor.getDouble(3);
                 zoom = cursor.getFloat(4);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom));
+
+                path = cursor.getString(5);
+
+                if(path != null){
+
+                    String[] pathTab = path.split("\n");
+
+                    for(String s : pathTab){
+                        String[] doubles = s.split(",");
+
+                        pathList.add(new LatLng(Double.valueOf( doubles[0]),Double.valueOf(doubles[1])));
+                    }
+
+                }
+
+
                 break;
             }
         }
@@ -88,24 +131,14 @@ public class RecordMapsActivity extends FragmentActivity implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
         loadDB();
-
-
-
     }
 
-    private static ArrayList<LatLng> pathList = new ArrayList<LatLng>();
+    private  ArrayList<LatLng> pathList = new ArrayList<LatLng>();
 
     public void startTraceRoute(){
 
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
@@ -132,15 +165,46 @@ public class RecordMapsActivity extends FragmentActivity implements OnMapReadyCa
 
     }
 
-    
+    private String pathListString ="";
 
     @Override
-    public void onConnectionSuspended(int i) {
+    protected void onStop() {
 
+
+        //String pathListString ="";
+
+        for (LatLng ll : pathList){
+
+            pathListString+=ll.latitude+","+ll.longitude+"\n";
+
+        }
+
+        //ToggleButton tb = (ToggleButton) findViewById(R.id.toggleButton);
+        //tb.setText(pathListString);
+
+        database.updateData(intent.getExtras().getInt("id"),pathListString);
+
+        super.onStop();
+    }
+
+    //TODO
+    public void startRecordingPath(View button) {
+        if ( !button.isSelected() ) {
+
+            //button.setSelected(true);
+        } else if ( button.isSelected() ) {
+
+            //button.setSelected(false);
+        }
     }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    public void onConnectionSuspended(int i) {}
 
-    }
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
+
+
+
+
 }
