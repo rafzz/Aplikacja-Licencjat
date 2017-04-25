@@ -12,13 +12,16 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.FloatMath;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -31,6 +34,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -127,12 +131,55 @@ public class RecordMapsActivity extends FragmentActivity
     }
 
     private LocationRequest locationRequest;
+    private ImageView imageView;
+    private TextView textView;
+    private FloatingActionButton photoBut;
+    private FloatingActionButton closeButton;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         loadDB();
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("marker");
+
+                mMap.addMarker(markerOptions);
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
+
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                //marker.remove();
+                imageView = (ImageView) findViewById(R.id.markerImageView);
+                textView = (TextView) findViewById(R.id.markerTextView);
+                photoBut = (FloatingActionButton) findViewById(R.id.photoButton);
+                closeButton = (FloatingActionButton) findViewById(R.id.closeButton);
+                imageView.setVisibility(View.VISIBLE);
+                textView.setVisibility(View.VISIBLE);
+                photoBut.setVisibility(View.VISIBLE);
+                closeButton.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
     }
+
+    public void closeMarkerMenu(View view){
+        imageView = (ImageView) findViewById(R.id.markerImageView);
+        textView = (TextView) findViewById(R.id.markerTextView);
+        photoBut = (FloatingActionButton) findViewById(R.id.photoButton);
+        closeButton = (FloatingActionButton) findViewById(R.id.closeButton);
+        imageView.setVisibility(View.INVISIBLE);
+        textView.setVisibility(View.INVISIBLE);
+        photoBut.setVisibility(View.INVISIBLE);
+        closeButton.setVisibility(View.INVISIBLE);
+    }
+
+
 
     private  ArrayList<LatLng> pathList = new ArrayList<LatLng>();
 
