@@ -10,6 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -19,6 +20,7 @@ import android.os.Bundle;
 import android.util.FloatMath;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -33,14 +35,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.maps.android.SphericalUtil;
+
 
 import java.util.ArrayList;
 
@@ -48,11 +51,21 @@ public class RecordMapsActivity extends FragmentActivity
         implements OnMapReadyCallback,
         LocationListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
     private Database database;
     private GoogleApiClient mGoogleApiClient;
+
+    public ArrayList<LatLng> getPathList() {
+        return pathList;
+    }
+
+    public void setPathList(ArrayList<LatLng> pathList) {
+        this.pathList = pathList;
+    }
+
+    private ArrayList<LatLng> pathList = new ArrayList<LatLng>();
 
 
     @Override
@@ -73,7 +86,6 @@ public class RecordMapsActivity extends FragmentActivity
         }
 
 
-
     }
 
     @Override
@@ -82,6 +94,7 @@ public class RecordMapsActivity extends FragmentActivity
         mGoogleApiClient.connect();
 
     }
+
 
     private Intent intent;
 
@@ -94,8 +107,8 @@ public class RecordMapsActivity extends FragmentActivity
 
         int id = intent.getExtras().getInt("id");
 
-        ToggleButton but = (ToggleButton) findViewById(R.id.toggleButton);
-        but.setText(String.valueOf(id));
+        ToggleButton but = (ToggleButton) findViewById(R.id.toggleB);
+        //but.setText(String.valueOf(id));
 
         database = new Database(this);
         Cursor cursor = database.writeAllData();
@@ -108,18 +121,35 @@ public class RecordMapsActivity extends FragmentActivity
                 lat = cursor.getDouble(2);
                 lng = cursor.getDouble(3);
                 zoom = cursor.getFloat(4);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom));
+
+                //animate camera and bounds
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom), new GoogleMap.CancelableCallback() {
+
+                    @Override
+                    public void onFinish() {
+                        //LatLngBounds latLngBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+                        //mMap.setLatLngBoundsForCameraTarget(latLngBounds);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                    }
+
+                });
+
+                mMap.setMinZoomPreference(zoom);
+
 
                 path = cursor.getString(5);
 
-                if(path != null){
+                if (path != null) {
 
                     String[] pathTab = path.split("\n");
 
-                    for(String s : pathTab){
+                    for (String s : pathTab) {
                         String[] doubles = s.split(",");
 
-                        pathList.add(new LatLng(Double.valueOf( doubles[0]),Double.valueOf(doubles[1])));
+                        pathList.add(new LatLng(Double.valueOf(doubles[0]), Double.valueOf(doubles[1])));
                     }
 
                 }
@@ -136,10 +166,12 @@ public class RecordMapsActivity extends FragmentActivity
     private FloatingActionButton photoBut;
     private FloatingActionButton closeButton;
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         loadDB();
+
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -150,7 +182,7 @@ public class RecordMapsActivity extends FragmentActivity
             }
         });
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -166,9 +198,11 @@ public class RecordMapsActivity extends FragmentActivity
                 return false;
             }
         });
+
+
     }
 
-    public void closeMarkerMenu(View view){
+    public void closeMarkerMenu(View view) {
         imageView = (ImageView) findViewById(R.id.markerImageView);
         textView = (TextView) findViewById(R.id.markerTextView);
         photoBut = (FloatingActionButton) findViewById(R.id.photoButton);
@@ -181,19 +215,24 @@ public class RecordMapsActivity extends FragmentActivity
 
 
 
-    private  ArrayList<LatLng> pathList = new ArrayList<LatLng>();
 
-    public void startTraceRoute(){
+    @Override
+    protected void onStart() {
+        super.onStart();
 
     }
 
     @Override
     public void onLocationChanged(Location location) {
 
-        pathList.add(new LatLng(location.getLatitude(),location.getLongitude()));
+
+        pathList.add(new LatLng(location.getLatitude(), location.getLongitude()));
+
         mMap.addPolyline(new PolylineOptions()
                 .addAll(pathList)
                 .width(5).color(Color.BLUE).geodesic(true));
+
+
     }
 
     @Override
@@ -208,11 +247,11 @@ public class RecordMapsActivity extends FragmentActivity
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+        //LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
 
     }
 
-    private String pathListString ="";
+    private String pathListString = "";
 
     @Override
     protected void onStop() {
@@ -220,28 +259,41 @@ public class RecordMapsActivity extends FragmentActivity
 
         //String pathListString ="";
 
-        for (LatLng ll : pathList){
+        for (LatLng ll : pathList) {
 
-            pathListString+=ll.latitude+","+ll.longitude+"\n";
+            pathListString += ll.latitude + "," + ll.longitude + "\n";
 
         }
 
         //ToggleButton tb = (ToggleButton) findViewById(R.id.toggleButton);
         //tb.setText(pathListString);
 
-        database.updateData(intent.getExtras().getInt("id"),pathListString);
+        database.updateData(intent.getExtras().getInt("id"), pathListString);
 
         super.onStop();
     }
 
     //TODO
     public void startRecordingPath(View button) {
-        if ( !button.isSelected() ) {
+        if (!button.isSelected()) {
+            ToggleButton tb = (ToggleButton) findViewById(R.id.toggleB);
+            //tb.setText("kufa");
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            //button.setSelected(true);
+                return;
+            }
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+            button.setSelected(true);
+
+
+
+
         } else if ( button.isSelected() ) {
+            ToggleButton tb = (ToggleButton) findViewById(R.id.toggleB);
+            //tb.setText("nie kufa");
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this );
+            button.setSelected(false);
 
-            //button.setSelected(false);
         }
     }
 

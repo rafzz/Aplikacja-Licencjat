@@ -21,7 +21,9 @@
         android:layout_height="wrap_content"
         android:textOn="Stop"
         android:textOff="Start"
-        android:id="@+id/toggleButton"
+
+        android:onClick="startRecordingPath"
+        android:id="@+id/toggleB"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
