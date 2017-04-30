@@ -4,19 +4,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.util.FloatMath;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +51,13 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.SphericalUtil;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
+import static android.provider.Settings.System.DATE_FORMAT;
 
 public class RecordMapsActivity extends FragmentActivity
         implements OnMapReadyCallback,
@@ -157,6 +169,7 @@ public class RecordMapsActivity extends FragmentActivity
 
                 break;
             }
+
         }
     }
 
@@ -171,6 +184,10 @@ public class RecordMapsActivity extends FragmentActivity
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         loadDB();
+
+        mMap.addPolyline(new PolylineOptions()
+                .addAll(pathList)
+                .width(5).color(Color.BLUE).geodesic(true));
 
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -214,13 +231,6 @@ public class RecordMapsActivity extends FragmentActivity
     }
 
 
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -302,6 +312,79 @@ public class RecordMapsActivity extends FragmentActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
+
+    private static final int REQUEST_TAKE_PHOTO = 1;
+    private final String AUTHORITY = "com.example.android.fileprovider";
+    private final String FILE_NAME_FORMAT = "JPEG_";
+    private final String FILE_FORMAT = ".jpg";
+    private final String DATE_FORMAT = "yyyyMMdd_HHmmss";
+
+    private static String mCurrentPhotoPath;
+
+    public void dispatchTakePictureIntent(View button) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                //...
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        AUTHORITY,
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+
+            }
+        }
+    }
+
+    public File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        String imageFileName = FILE_NAME_FORMAT + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                FILE_FORMAT,         /* suffix */
+                storageDir      /* directory */
+        );
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+
+        return image;
+    }
+
+    private final int PHOTO_SCALE = 10;
+
+    //private static ImageView mImageView; //??!!
+
+    public void setPic() {
+        ImageView mImageView = (ImageView) findViewById(R.id.markerImageView);
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+
+        // Determine how much to scale down the image
+        //int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = PHOTO_SCALE;
+        bmOptions.inPurgeable = true;
+
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        mImageView.setImageBitmap(bitmap);
+    }
 
 
 

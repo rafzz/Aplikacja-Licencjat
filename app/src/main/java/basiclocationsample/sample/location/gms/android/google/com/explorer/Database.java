@@ -25,7 +25,7 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
 
 
         public Database(Context context) {
-            super(context, DB_NAME, null,12);
+            super(context, DB_NAME, null,19);
         }
 
         @Override

@@ -61,6 +61,7 @@
         app:fabSize="normal"
         android:visibility="invisible"
         app:srcCompat="@android:drawable/ic_menu_camera"
+        android:onClick="dispatchTakePictureIntent"
         android:id="@+id/photoButton"
         app:backgroundTint="@android:color/holo_green_light"
         android:layout_alignTop="@+id/markerImageView"
