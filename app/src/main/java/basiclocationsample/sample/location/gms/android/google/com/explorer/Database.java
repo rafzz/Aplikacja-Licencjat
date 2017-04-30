@@ -25,7 +25,7 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
 
 
         public Database(Context context) {
-            super(context, DB_NAME, null,19);
+            super(context, DB_NAME, null,25);
         }
 
         @Override
@@ -39,7 +39,8 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
                             LONGITUDE + " double," +
                             LATITUDE + " double," +
                             ZOOM + " float " +
-                            PATH + " text " +");" +
+                            PATH + " text " +
+                            "markers" + " text " +");" +
                             "");
         }
 
@@ -48,12 +49,13 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
             // If you need to add a column
             if (newVersion > oldVersion) {
                 //db.execSQL("ALTER TABLE area ADD COLUMN name text");
-                db.execSQL("ALTER TABLE area ADD COLUMN path text");
+                //db.execSQL("ALTER TABLE area ADD COLUMN path text");
+                db.execSQL("ALTER TABLE area ADD COLUMN markers text");
 
             }
         }
 
-        public void addData(double latitude, double longitude, float zoom, String name, String path) {
+        public void addData(double latitude, double longitude, float zoom, String name, String path ) {
             SQLiteDatabase dataBase = getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(this.NAME, name);
@@ -75,7 +77,7 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
         }
 
         public Cursor writeAllData() {
-            String[] column = {PK_NAME, NAME, LATITUDE, LONGITUDE, ZOOM, PATH};
+            String[] column = {PK_NAME, NAME, LATITUDE, LONGITUDE, ZOOM, PATH, "markers"};
             SQLiteDatabase dataBase = getReadableDatabase();
             Cursor cursor = dataBase.query(TABLE_NAME, column, null, null, null, null, null);
             return cursor;
@@ -115,11 +117,35 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
             dataBase.update(TABLE_NAME, values, PK_NAME + "=?", args);
         }
 
-        public void updateData(int id, String path) {
+        public void updateData(int id, String path ) {
             SQLiteDatabase dataBase = getWritableDatabase();
             ContentValues values = new ContentValues();
 
             values.put(this.PATH, path);
+
+
+            String[] args = {"" + id};
+            dataBase.update(TABLE_NAME, values, PK_NAME + "=?", args);
+        }
+
+        public void updateData(int id, String path, String markers ) {
+            SQLiteDatabase dataBase = getWritableDatabase();
+            ContentValues values = new ContentValues();
+
+            values.put(this.PATH, path);
+            values.put("markers", markers);
+
+
+            String[] args = {"" + id};
+            dataBase.update(TABLE_NAME, values, PK_NAME + "=?", args);
+        }
+
+        public void updateMarkers(int id, String markers ) {
+            SQLiteDatabase dataBase = getWritableDatabase();
+            ContentValues values = new ContentValues();
+
+            values.put("markers", markers);
+
 
             String[] args = {"" + id};
             dataBase.update(TABLE_NAME, values, PK_NAME + "=?", args);

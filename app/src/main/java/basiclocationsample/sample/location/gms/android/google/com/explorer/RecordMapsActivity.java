@@ -56,6 +56,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.*;
 
 import static android.provider.Settings.System.DATE_FORMAT;
 
@@ -69,15 +73,8 @@ public class RecordMapsActivity extends FragmentActivity
     private Database database;
     private GoogleApiClient mGoogleApiClient;
 
-    public ArrayList<LatLng> getPathList() {
-        return pathList;
-    }
-
-    public void setPathList(ArrayList<LatLng> pathList) {
-        this.pathList = pathList;
-    }
-
     private ArrayList<LatLng> pathList = new ArrayList<LatLng>();
+    private HashMap<LatLng,MarkerContener> markersMap = new HashMap<LatLng,MarkerContener>();
 
 
     @Override
@@ -126,6 +123,7 @@ public class RecordMapsActivity extends FragmentActivity
         Cursor cursor = database.writeAllData();
 
         String path;
+        String markers;
 
         while (cursor.moveToNext()) {
 
@@ -166,6 +164,27 @@ public class RecordMapsActivity extends FragmentActivity
 
                 }
 
+                markers = cursor.getString(6);
+
+
+
+                if (markers != null) {
+
+                    String[] markersTab = markers.split("\n");
+
+                    for (String s : markersTab) {
+                        String[] doubles = s.split(",");
+
+
+                        mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(Double.valueOf(doubles[0]), Double.valueOf(doubles[1]))));
+
+                        markersMap.put(new LatLng(Double.valueOf(doubles[0]), Double.valueOf(doubles[1])), new MarkerContener());
+                    }
+
+                }
+
+
 
                 break;
             }
@@ -190,12 +209,18 @@ public class RecordMapsActivity extends FragmentActivity
                 .width(5).color(Color.BLUE).geodesic(true));
 
 
+
+
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("marker");
+                MarkerOptions markerOptions = new MarkerOptions().position(latLng);
 
                 mMap.addMarker(markerOptions);
+
+                markersMap.put(latLng, new MarkerContener());
+
+
             }
         });
 
@@ -263,31 +288,34 @@ public class RecordMapsActivity extends FragmentActivity
 
     private String pathListString = "";
 
+    private String markersString="";
+
+    //TODO
     @Override
     protected void onStop() {
 
-
-        //String pathListString ="";
-
-        for (LatLng ll : pathList) {
-
-            pathListString += ll.latitude + "," + ll.longitude + "\n";
-
+        if(pathList.size()!=0) {
+            for (LatLng ll : pathList) {
+                pathListString += ll.latitude + "," + ll.longitude + "\n";
+            }
+            database.updateData(intent.getExtras().getInt("id"), pathListString);
         }
 
-        //ToggleButton tb = (ToggleButton) findViewById(R.id.toggleButton);
-        //tb.setText(pathListString);
+        if(markersMap.keySet().size()!=0) {
+            for (LatLng ll : markersMap.keySet()) {
+                markersString += ll.latitude + "," + ll.longitude + "\n";
 
-        database.updateData(intent.getExtras().getInt("id"), pathListString);
+            }
 
+
+            database.updateMarkers(intent.getExtras().getInt("id"), markersString);
+        }
         super.onStop();
     }
 
-    //TODO
     public void startRecordingPath(View button) {
         if (!button.isSelected()) {
             ToggleButton tb = (ToggleButton) findViewById(R.id.toggleB);
-            //tb.setText("kufa");
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
                 return;
@@ -295,12 +323,8 @@ public class RecordMapsActivity extends FragmentActivity
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
             button.setSelected(true);
 
-
-
-
         } else if ( button.isSelected() ) {
             ToggleButton tb = (ToggleButton) findViewById(R.id.toggleB);
-            //tb.setText("nie kufa");
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this );
             button.setSelected(false);
 
