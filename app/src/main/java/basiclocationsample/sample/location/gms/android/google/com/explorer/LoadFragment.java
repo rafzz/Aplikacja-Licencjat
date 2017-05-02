@@ -135,15 +135,17 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
         */
         intent.putExtra("id",radioGroup.getCheckedRadioButtonId());
 
+       if(radioGroup.getCheckedRadioButtonId()!=-1){
+
+           startActivity(intent);
+       }
 
 
-        startActivity(intent);
 
 
 
-        //for(RadioButton rb : radioGroup){
 
-        //}
+
 
     }
 

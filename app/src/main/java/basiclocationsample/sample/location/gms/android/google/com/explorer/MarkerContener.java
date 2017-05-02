@@ -30,6 +30,11 @@ public class MarkerContener {
         this.photoPath = photoPath;
     }
 
+    public MarkerContener( String photoPath) {
+
+        this.photoPath = photoPath;
+    }
+
     public MarkerContener() {
     }
 }
