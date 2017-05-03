@@ -29,11 +29,11 @@
         android:layout_alignParentStart="true" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:srcCompat="@drawable/cast_ic_notification_stop_live_stream"
         android:id="@+id/markerImageView"
-        android:onClick="rotateImage"
+        android:rotation="90"
         android:scaleType="center"
         android:visibility="invisible"
         android:foreground="@drawable/cast_ic_notification_stop_live_stream"
@@ -43,20 +43,6 @@
         android:layout_alignEnd="@+id/markerTextView"
         android:layout_alignParentTop="true"
         android:layout_above="@+id/markerTextView" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        app:fabSize="mini"
-        android:onClick="saveMarkerMenu"
-        app:srcCompat="@android:drawable/ic_menu_save"
-        android:layout_below="@+id/closeButton"
-        android:layout_alignLeft="@+id/closeButton"
-        android:layout_alignStart="@+id/closeButton"
-        android:id="@+id/saveButton"
-        app:backgroundTint="@android:color/holo_green_light"
-        android:visibility="invisible" />
 
     <Button
         android:text="Button"
@@ -68,18 +54,6 @@
         android:id="@+id/button3"
         android:visibility="invisible" />
 
-    <TextView
-        android:hint="markerName"
-        android:layout_width="wrap_content"
-        android:textSize="20dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/markerTextView"
-        android:visibility="invisible"
-        android:background="@android:color/holo_green_light"
-        android:layout_alignTop="@+id/button3"
-        android:layout_centerHorizontal="true"
-        android:layout_alignBottom="@+id/button3" />
-
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -90,9 +64,23 @@
         android:onClick="dispatchTakePictureIntent"
         android:id="@+id/photoButton"
         app:backgroundTint="@android:color/holo_green_light"
-        android:layout_alignBottom="@+id/markerTextView"
-        android:layout_toRightOf="@+id/markerImageView"
-        android:layout_toEndOf="@+id/markerImageView" />
+        android:layout_above="@+id/button3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        android:onClick="saveMarkerMenu"
+        app:srcCompat="@android:drawable/ic_menu_save"
+        android:id="@+id/saveButton"
+        app:backgroundTint="@android:color/holo_green_light"
+        android:visibility="invisible"
+        android:layout_above="@+id/photoButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
@@ -104,8 +92,35 @@
         app:srcCompat="@drawable/mr_ic_close_light"
         android:id="@+id/closeButton"
         app:backgroundTint="@android:color/holo_green_light"
-        android:layout_alignTop="@+id/photoButton"
-        android:layout_toLeftOf="@+id/markerImageView"
-        android:layout_toStartOf="@+id/markerImageView" />
+        android:layout_marginBottom="43dp"
+        android:layout_above="@+id/photoButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_menu_rotate"
+        android:id="@+id/rotateButton"
+        android:onClick="rotateImage"
+        app:backgroundTint="@android:color/holo_green_light"
+        android:visibility="invisible"
+        android:layout_below="@+id/photoButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_menu_delete"
+        android:id="@+id/floatingActionButton2"
+        app:backgroundTint="@android:color/holo_green_light"
+        android:layout_above="@+id/closeButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

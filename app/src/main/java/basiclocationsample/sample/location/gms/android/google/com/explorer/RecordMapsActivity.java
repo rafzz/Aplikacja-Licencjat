@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -212,6 +213,7 @@ public class RecordMapsActivity extends FragmentActivity
     private FloatingActionButton photoBut;
     private FloatingActionButton closeButton;
     private FloatingActionButton saveButton;
+    private FloatingActionButton rotateButton;
 
     private static LatLng mCurrentMarkerLatLng;
 
@@ -246,12 +248,12 @@ public class RecordMapsActivity extends FragmentActivity
             public boolean onMarkerClick(Marker marker) {
                 //marker.remove();
                 imageView = (ImageView) findViewById(R.id.markerImageView);
-                textView = (TextView) findViewById(R.id.markerTextView);
+                rotateButton = (FloatingActionButton) findViewById(R.id.rotateButton);
                 photoBut = (FloatingActionButton) findViewById(R.id.photoButton);
                 closeButton = (FloatingActionButton) findViewById(R.id.closeButton);
                 saveButton = (FloatingActionButton) findViewById(R.id.saveButton);
                 imageView.setVisibility(View.VISIBLE);
-                textView.setVisibility(View.VISIBLE);
+                rotateButton.setVisibility(View.VISIBLE);
                 photoBut.setVisibility(View.VISIBLE);
                 closeButton.setVisibility(View.VISIBLE);
                 saveButton.setVisibility(View.VISIBLE);
@@ -287,7 +289,14 @@ public class RecordMapsActivity extends FragmentActivity
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                imageView.setScaleType(ImageView.ScaleType.CENTER);
+
+                if(imageView.getScaleType()==ImageView.ScaleType.CENTER_CROP) {
+                    imageView.setScaleType(ImageView.ScaleType.CENTER);
+
+                }else if(imageView.getScaleType()==ImageView.ScaleType.CENTER) {
+                    imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                }
+
                 return false;
             }
 
@@ -295,20 +304,22 @@ public class RecordMapsActivity extends FragmentActivity
         */
 
 
+
     }
 
     public void rotateImage(View view){
 
-        if(view.getRotation()==0){
-            view.setRotation(90);
-        }else if(view.getRotation()==90){
-            view.setRotation(180);
-        }else if(view.getRotation()==180){
-            view.setRotation(270);
-        }else if(view.getRotation()==270){
-            view.setRotation(360);
-        }else if(view.getRotation()==360){
-            view.setRotation(90);
+        imageView = (ImageView) findViewById(R.id.markerImageView);
+        if(imageView.getRotation()==0){
+            imageView.setRotation(90);
+        }else if(imageView.getRotation()==90){
+            imageView.setRotation(180);
+        }else if(imageView.getRotation()==180){
+            imageView.setRotation(270);
+        }else if(imageView.getRotation()==270){
+            imageView.setRotation(360);
+        }else if(imageView.getRotation()==360){
+            imageView.setRotation(90);
         }
 
 
@@ -316,12 +327,12 @@ public class RecordMapsActivity extends FragmentActivity
 
     public void closeMarkerMenu(View view) {
         imageView = (ImageView) findViewById(R.id.markerImageView);
-        textView = (TextView) findViewById(R.id.markerTextView);
+        rotateButton = (FloatingActionButton) findViewById(R.id.rotateButton);
         photoBut = (FloatingActionButton) findViewById(R.id.photoButton);
         closeButton = (FloatingActionButton) findViewById(R.id.closeButton);
         saveButton = (FloatingActionButton) findViewById(R.id.saveButton);
         imageView.setVisibility(View.INVISIBLE);
-        textView.setVisibility(View.INVISIBLE);
+        rotateButton.setVisibility(View.INVISIBLE);
         photoBut.setVisibility(View.INVISIBLE);
         closeButton.setVisibility(View.INVISIBLE);
         saveButton.setVisibility(View.INVISIBLE);
@@ -329,12 +340,12 @@ public class RecordMapsActivity extends FragmentActivity
 
     public void saveMarkerMenu(View view) {
         imageView = (ImageView) findViewById(R.id.markerImageView);
-        textView = (TextView) findViewById(R.id.markerTextView);
+        rotateButton = (FloatingActionButton) findViewById(R.id.rotateButton);
         photoBut = (FloatingActionButton) findViewById(R.id.photoButton);
         closeButton = (FloatingActionButton) findViewById(R.id.closeButton);
         saveButton = (FloatingActionButton) findViewById(R.id.saveButton);
         imageView.setVisibility(View.INVISIBLE);
-        textView.setVisibility(View.INVISIBLE);
+        rotateButton.setVisibility(View.INVISIBLE);
         photoBut.setVisibility(View.INVISIBLE);
         closeButton.setVisibility(View.INVISIBLE);
         saveButton.setVisibility(View.INVISIBLE);
