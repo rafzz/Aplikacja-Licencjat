@@ -2,6 +2,7 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,8 +29,12 @@ import android.util.FloatMath;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -85,6 +91,9 @@ public class RecordMapsActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_maps);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -97,6 +106,10 @@ public class RecordMapsActivity extends FragmentActivity
                     .addApi(LocationServices.API)
                     .build();
         }
+
+
+
+
 
 
     }
@@ -120,7 +133,7 @@ public class RecordMapsActivity extends FragmentActivity
 
         int id = intent.getExtras().getInt("id");
 
-        ToggleButton but = (ToggleButton) findViewById(R.id.toggleB);
+        //ToggleButton but = (ToggleButton) findViewById(R.id.toggleB);
         //but.setText(String.valueOf(id));
 
         database = new Database(this);
@@ -209,13 +222,14 @@ public class RecordMapsActivity extends FragmentActivity
 
     private LocationRequest locationRequest;
     private ImageView imageView;
-    private TextView textView;
+    private FloatingActionButton deleteButton;
     private FloatingActionButton photoBut;
     private FloatingActionButton closeButton;
     private FloatingActionButton saveButton;
     private FloatingActionButton rotateButton;
 
     private static LatLng mCurrentMarkerLatLng;
+    private static Marker mCurrentMarker;
 
 
     @Override
@@ -252,6 +266,8 @@ public class RecordMapsActivity extends FragmentActivity
                 photoBut = (FloatingActionButton) findViewById(R.id.photoButton);
                 closeButton = (FloatingActionButton) findViewById(R.id.closeButton);
                 saveButton = (FloatingActionButton) findViewById(R.id.saveButton);
+                deleteButton = (FloatingActionButton) findViewById(R.id.deleteMarkerButton);
+                deleteButton.setVisibility(View.VISIBLE);
                 imageView.setVisibility(View.VISIBLE);
                 rotateButton.setVisibility(View.VISIBLE);
                 photoBut.setVisibility(View.VISIBLE);
@@ -259,7 +275,7 @@ public class RecordMapsActivity extends FragmentActivity
                 saveButton.setVisibility(View.VISIBLE);
 
 
-
+                mCurrentMarker=marker;
                 mCurrentMarkerLatLng=marker.getPosition();
                 for(Map.Entry<LatLng,MarkerContener> entry : markersMap.entrySet()){
                     if(entry.getKey().equals(mCurrentMarkerLatLng)){
@@ -336,6 +352,8 @@ public class RecordMapsActivity extends FragmentActivity
         photoBut.setVisibility(View.INVISIBLE);
         closeButton.setVisibility(View.INVISIBLE);
         saveButton.setVisibility(View.INVISIBLE);
+        deleteButton = (FloatingActionButton) findViewById(R.id.deleteMarkerButton);
+        deleteButton.setVisibility(View.INVISIBLE);
     }
 
     public void saveMarkerMenu(View view) {
@@ -349,6 +367,8 @@ public class RecordMapsActivity extends FragmentActivity
         photoBut.setVisibility(View.INVISIBLE);
         closeButton.setVisibility(View.INVISIBLE);
         saveButton.setVisibility(View.INVISIBLE);
+        deleteButton = (FloatingActionButton) findViewById(R.id.deleteMarkerButton);
+        deleteButton.setVisibility(View.INVISIBLE);
 
         for(LatLng ll : markersMap.keySet()){
             if(ll.equals(mCurrentMarkerLatLng)){
@@ -358,12 +378,35 @@ public class RecordMapsActivity extends FragmentActivity
 
     }
 
+    public void deleteMarker(View view){
+        markersMap.remove(mCurrentMarkerLatLng);
+        mCurrentMarker.remove();
+        imageView = (ImageView) findViewById(R.id.markerImageView);
+        rotateButton = (FloatingActionButton) findViewById(R.id.rotateButton);
+        photoBut = (FloatingActionButton) findViewById(R.id.photoButton);
+        closeButton = (FloatingActionButton) findViewById(R.id.closeButton);
+        saveButton = (FloatingActionButton) findViewById(R.id.saveButton);
+        imageView.setVisibility(View.INVISIBLE);
+        rotateButton.setVisibility(View.INVISIBLE);
+        photoBut.setVisibility(View.INVISIBLE);
+        closeButton.setVisibility(View.INVISIBLE);
+        saveButton.setVisibility(View.INVISIBLE);
+        deleteButton = (FloatingActionButton) findViewById(R.id.deleteMarkerButton);
+        deleteButton.setVisibility(View.INVISIBLE);
 
+
+
+    }
+
+
+    private LatLng mCurrentLatLng;
 
     @Override
     public void onLocationChanged(Location location) {
 
 
+
+        mCurrentLatLng = new LatLng(location.getLatitude(),location.getLongitude());
         pathList.add(new LatLng(location.getLatitude(), location.getLongitude()));
 
         mMap.addPolyline(new PolylineOptions()
@@ -375,6 +418,11 @@ public class RecordMapsActivity extends FragmentActivity
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+
+        RadioButton led = (RadioButton) findViewById(R.id.conectionLed);
+        led.setSelected(mGoogleApiClient.isConnected());
+        led.setChecked(mGoogleApiClient.isConnected());
+
 
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(1000);
@@ -422,29 +470,58 @@ public class RecordMapsActivity extends FragmentActivity
         super.finish();
     }
 
+
+
     public void startRecordingPath(View button) {
+        Chronometer timer = (Chronometer) findViewById(R.id.chronometer);
         if (!button.isSelected()) {
             ToggleButton tb = (ToggleButton) findViewById(R.id.toggleB);
+
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
                 return;
             }
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
             button.setSelected(true);
+            timer.setBase(SystemClock.elapsedRealtime());
+            timer.start();
+
 
         } else if ( button.isSelected() ) {
             ToggleButton tb = (ToggleButton) findViewById(R.id.toggleB);
+
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this );
             button.setSelected(false);
-
+            //tb.setBackgroundDrawable(getResources().getDrawable(R.drawable.quantum_ic_pause_circle_filled_grey600_36));
+            timer.stop();
         }
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {}
+    public void addMarker(View view){
+
+        if(mCurrentLatLng==null){
+
+        }else{
+            mMap.addMarker(new MarkerOptions().position(mCurrentLatLng));
+            markersMap.put(mCurrentLatLng, new MarkerContener());
+        }
+
+    }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
+    public void onConnectionSuspended(int i) {
+        RadioButton led = (RadioButton) findViewById(R.id.conectionLed);
+        led.setSelected(mGoogleApiClient.isConnected());
+        led.setChecked(mGoogleApiClient.isConnected());
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        RadioButton led = (RadioButton) findViewById(R.id.conectionLed);
+        led.setSelected(mGoogleApiClient.isConnected());
+        led.setChecked(mGoogleApiClient.isConnected());
+    }
 
     private static final int REQUEST_TAKE_PHOTO = 1;
     private final String AUTHORITY = "com.example.android.fileprovider";
@@ -455,6 +532,31 @@ public class RecordMapsActivity extends FragmentActivity
     private static String mCurrentPhotoPath;
 
     public void dispatchTakePictureIntent(View button) {
+        //SAVE!!!
+        if(pathList.size()!=0) {
+            for (LatLng ll : pathList) {
+                pathListString += ll.latitude + "," + ll.longitude + "\n";
+            }
+            database.updateData(intent.getExtras().getInt("id"), pathListString);
+        }
+
+        if(markersMap.keySet().size()!=0) {
+            for (Map.Entry<LatLng,MarkerContener> entry : markersMap.entrySet()) {
+
+
+                markersString += entry.getKey().latitude +
+                        "," + entry.getKey().longitude +
+                        "," + entry.getValue().getPhotoPath() + "\n";
+
+            }
+
+
+            database.updateMarkers(intent.getExtras().getInt("id"), markersString);
+        }
+        //SAVE!!!
+
+
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -528,6 +630,8 @@ public class RecordMapsActivity extends FragmentActivity
         if(mCurrentPhotoPath!=null) {
             setPic();
         }
-        super.onStart();
+            super.onStart();
     }
+
 }
+

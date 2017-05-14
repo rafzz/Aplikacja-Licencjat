@@ -15,19 +15,6 @@
     android:layout_height="match_parent"
     tools:context="basiclocationsample.sample.location.gms.android.google.com.explorer.RecordMapsActivity" />
 
-    <ToggleButton
-        android:text="ToggleButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textOn="Stop"
-        android:textOff="Start"
-
-        android:onClick="startRecordingPath"
-        android:id="@+id/toggleB"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -116,11 +103,84 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         app:fabSize="mini"
+        android:onClick="deleteMarker"
         app:srcCompat="@android:drawable/ic_menu_delete"
-        android:id="@+id/floatingActionButton2"
+        android:id="@+id/deleteMarkerButton"
         app:backgroundTint="@android:color/holo_green_light"
         android:layout_above="@+id/closeButton"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="invisible" />
+
+    <ToggleButton
+        android:text="ToggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:onClick="startRecordingPath"
+        android:id="@+id/toggleB"
+        android:textOff="START"
+        android:textOn="STOP" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="normal"
+        android:onClick="addMarker"
+        app:srcCompat="@android:drawable/arrow_down_float"
+        android:layout_above="@+id/toggleB"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/currentLocationMarker"
+        app:backgroundTint="@android:color/holo_green_light" />
+
+    <TextView
+        android:text="Current Location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:id="@+id/textView"
+        android:background="@android:drawable/progress_horizontal"
+        android:layout_above="@+id/toggleB"
+        android:layout_toRightOf="@+id/currentLocationMarker"
+        android:layout_toEndOf="@+id/currentLocationMarker" />
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/frame"
+        android:background="@android:drawable/progress_horizontal"
+        android:layout_alignRight="@+id/chronometer"
+        android:layout_alignEnd="@+id/chronometer"
+        android:layout_below="@+id/currentLocationMarker" />
+
+    <Chronometer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="35dp"
+
+        android:id="@+id/chronometer"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/toggleB"
+        android:layout_toEndOf="@+id/toggleB" />
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/conectionLed"
+        android:clickable="false"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/deleteMarkerButton"
+        android:layout_alignEnd="@+id/deleteMarkerButton" />
 
 </RelativeLayout>

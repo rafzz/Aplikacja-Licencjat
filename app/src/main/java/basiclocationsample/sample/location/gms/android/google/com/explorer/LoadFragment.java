@@ -1,6 +1,7 @@
 package basiclocationsample.sample.location.gms.android.google.com.explorer;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
@@ -34,9 +35,13 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load_fragment);
 
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment2);
         mapFragment.getMapAsync(this);
+
+
 
 
         loadDB();
@@ -148,6 +153,14 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
+    }
+
+    public void deleteArea(View view){
+        database = new Database(this);
+        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.tableLayout);
+        database.removeData(radioGroup.getCheckedRadioButtonId());
+        radioGroup.removeView(radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()));
+        radioGroup.refreshDrawableState();
     }
 
 
