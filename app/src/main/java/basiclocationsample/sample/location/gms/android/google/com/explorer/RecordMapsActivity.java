@@ -1,6 +1,5 @@
 package basiclocationsample.sample.location.gms.android.google.com.explorer;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -8,13 +7,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.provider.MediaStore;
@@ -25,20 +19,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.FileProvider;
-import android.util.FloatMath;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.RotateAnimation;
-import android.widget.Button;
 import android.widget.Chronometer;
-import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.RadioButton;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -50,11 +34,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import com.google.maps.android.SphericalUtil;
@@ -66,6 +52,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.apache.log4j.BasicConfigurator;
@@ -83,8 +70,11 @@ public class RecordMapsActivity extends FragmentActivity
     private Database database;
     private GoogleApiClient mGoogleApiClient;
 
-    private ArrayList<LatLng> pathList = new ArrayList<LatLng>();
-    private HashMap<LatLng,MarkerContener> markersMap = new HashMap<LatLng,MarkerContener>();
+    private LinkedList<LatLng> pathList = new LinkedList<LatLng>();
+    private HashMap<LatLng, MarkerContener> markersMap = new HashMap<LatLng, MarkerContener>();
+
+
+
 
 
     @Override
@@ -108,16 +98,16 @@ public class RecordMapsActivity extends FragmentActivity
         }
 
 
-
-
-
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
         mGoogleApiClient.connect();
+        ToggleButton tb = (ToggleButton) findViewById(R.id.toggleB);
+        //tb.setSelected(false);
+        //tb.setChecked(false);
 
     }
 
@@ -184,7 +174,6 @@ public class RecordMapsActivity extends FragmentActivity
                 markers = cursor.getString(6);
 
 
-
                 if (markers != null) {
 
                     String[] markersTab = markers.split("\n");
@@ -196,9 +185,9 @@ public class RecordMapsActivity extends FragmentActivity
                         mMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(Double.valueOf(doubles[0]), Double.valueOf(doubles[1]))));
 
-                        if(doubles.length==2){
+                        if (doubles.length == 2) {
                             markersMap.put(new LatLng(Double.valueOf(doubles[0]), Double.valueOf(doubles[1])), new MarkerContener());
-                        }else if(doubles.length==3){
+                        } else if (doubles.length == 3) {
                             markersMap.put(new LatLng(Double.valueOf(doubles[0]), Double.valueOf(doubles[1])), new MarkerContener(doubles[2]));
                         }
                         /*
@@ -211,7 +200,6 @@ public class RecordMapsActivity extends FragmentActivity
                     }
 
                 }
-
 
 
                 break;
@@ -235,6 +223,13 @@ public class RecordMapsActivity extends FragmentActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+
         loadDB();
 
         mMap.addPolyline(new PolylineOptions()
@@ -248,7 +243,9 @@ public class RecordMapsActivity extends FragmentActivity
             @Override
             public void onMapClick(LatLng latLng) {
 
-                mMap.addMarker(new MarkerOptions().position(latLng));
+                mMap.addMarker(new MarkerOptions()
+                        .position(latLng));
+
 
                 markersMap.put(latLng, new MarkerContener());
 
@@ -400,6 +397,7 @@ public class RecordMapsActivity extends FragmentActivity
 
 
     private LatLng mCurrentLatLng;
+    private Polyline line;
 
     @Override
     public void onLocationChanged(Location location) {
@@ -407,9 +405,14 @@ public class RecordMapsActivity extends FragmentActivity
 
 
         mCurrentLatLng = new LatLng(location.getLatitude(),location.getLongitude());
-        pathList.add(new LatLng(location.getLatitude(), location.getLongitude()));
+        if( !pathList.contains(new LatLng(location.getLatitude(), location.getLongitude())) ){
+            pathList.add(new LatLng(location.getLatitude(), location.getLongitude()));
+        }
 
-        mMap.addPolyline(new PolylineOptions()
+        if(line!=null) {
+            line.remove();
+        }
+        line = mMap.addPolyline(new PolylineOptions()
                 .addAll(pathList)
                 .width(5).color(Color.BLUE).geodesic(true));
 
@@ -418,10 +421,6 @@ public class RecordMapsActivity extends FragmentActivity
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-
-        RadioButton led = (RadioButton) findViewById(R.id.conectionLed);
-        led.setSelected(mGoogleApiClient.isConnected());
-        led.setChecked(mGoogleApiClient.isConnected());
 
 
         locationRequest = LocationRequest.create();
@@ -509,19 +508,10 @@ public class RecordMapsActivity extends FragmentActivity
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-        RadioButton led = (RadioButton) findViewById(R.id.conectionLed);
-        led.setSelected(mGoogleApiClient.isConnected());
-        led.setChecked(mGoogleApiClient.isConnected());
-    }
+    public void onConnectionSuspended(int i) {}
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-        RadioButton led = (RadioButton) findViewById(R.id.conectionLed);
-        led.setSelected(mGoogleApiClient.isConnected());
-        led.setChecked(mGoogleApiClient.isConnected());
-    }
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
 
     private static final int REQUEST_TAKE_PHOTO = 1;
     private final String AUTHORITY = "com.example.android.fileprovider";

@@ -65,29 +65,73 @@
         android:id="@+id/loadMapFregmentLable"
         android:background="@android:drawable/progress_horizontal" />
 
-    <Button
-        android:text="Save"
-        android:textSize="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/setMapName"
-        android:id="@+id/Save"
-        android:onClick="saveMapFragment"
-        android:visibility="invisible"
-        android:layout_toLeftOf="@+id/snapMapLable" />
-
     <EditText
         android:hint="name"
-        android:textSize="20dp"
+        android:textSize="30dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="165dp"
         android:id="@+id/setMapName"
         android:visibility="invisible"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/loadMapFregmentLable"
-        android:layout_alignLeft="@+id/Save"
-        android:layout_alignStart="@+id/Save"
-        android:background="@android:color/holo_green_light" />
+        android:background="@android:color/holo_green_light"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPostalAddress"
+        android:ems="10"
+        android:textSize="20dp"
+        android:id="@+id/searchEditView"
+        android:background="@android:drawable/progress_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@+id/searchButton"
+        android:layout_alignRight="@+id/Save"
+        android:layout_alignEnd="@+id/Save" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="normal"
+        app:srcCompat="@android:drawable/ic_search_category_default"
+        android:id="@+id/searchButton"
+        android:onClick="searchAddress"
+        app:backgroundTint="@android:color/holo_green_light"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/searchEditView"
+        android:layout_toEndOf="@+id/searchEditView" />
+
+    <Button
+        android:text="Save"
+        android:textSize="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/Save"
+        android:onClick="saveMapFragment"
+        android:visibility="invisible"
+        android:layout_below="@+id/setMapName"
+        android:layout_centerHorizontal="true" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        android:onClick="closeNamePanel"
+        app:srcCompat="@drawable/ic_close_light"
+        android:layout_above="@+id/Save"
+        android:layout_toLeftOf="@+id/snapMapLable"
+        android:layout_toStartOf="@+id/snapMapLable"
+        android:layout_marginBottom="35dp"
+        android:id="@+id/closePanel"
+        app:backgroundTint="@android:color/holo_green_light"
+        android:visibility="invisible" />
 
 </RelativeLayout>

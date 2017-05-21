@@ -48,7 +48,7 @@
         <activity android:name=".LoadFragment" />
         <activity
             android:name=".RecordMapsActivity"
-            android:label="@string/title_activity_record_maps"></activity>
+            android:label="@string/app_lable_name"></activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
