@@ -73,9 +73,33 @@ public class RecordMapsActivity extends FragmentActivity
     private LinkedList<LatLng> pathList = new LinkedList<LatLng>();
     private HashMap<LatLng, MarkerContener> markersMap = new HashMap<LatLng, MarkerContener>();
 
+    private LocationRequest locationRequest;
+    private ImageView imageView;
+    private FloatingActionButton deleteButton;
+    private FloatingActionButton photoBut;
+    private FloatingActionButton closeButton;
+    private FloatingActionButton saveButton;
+    private FloatingActionButton rotateButton;
 
+    private static LatLng mCurrentMarkerLatLng;
+    private static Marker mCurrentMarker;
+    private Intent intent;
 
+    private LatLng mCurrentLatLng;
+    private Polyline line;
 
+    private String pathListString = "";
+    private String markersString="";
+
+    private static final int REQUEST_TAKE_PHOTO = 1;
+    private final String AUTHORITY = "com.example.android.fileprovider";
+    private final String FILE_NAME_FORMAT = "JPEG_";
+    private final String FILE_FORMAT = ".jpg";
+    private final String DATE_FORMAT = "yyyyMMdd_HHmmss";
+
+    private static String mCurrentPhotoPath;
+
+    private final int PHOTO_SCALE = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,13 +130,7 @@ public class RecordMapsActivity extends FragmentActivity
 
         mGoogleApiClient.connect();
         ToggleButton tb = (ToggleButton) findViewById(R.id.toggleB);
-        //tb.setSelected(false);
-        //tb.setChecked(false);
-
     }
-
-
-    private Intent intent;
 
     public void loadDB() {
         double lat;
@@ -122,9 +140,6 @@ public class RecordMapsActivity extends FragmentActivity
         intent = getIntent();
 
         int id = intent.getExtras().getInt("id");
-
-        //ToggleButton but = (ToggleButton) findViewById(R.id.toggleB);
-        //but.setText(String.valueOf(id));
 
         database = new Database(this);
         Cursor cursor = database.writeAllData();
@@ -139,21 +154,7 @@ public class RecordMapsActivity extends FragmentActivity
                 lng = cursor.getDouble(3);
                 zoom = cursor.getFloat(4);
 
-                //animate camera and bounds
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom), new GoogleMap.CancelableCallback() {
-
-                    @Override
-                    public void onFinish() {
-                        //LatLngBounds latLngBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-                        //mMap.setLatLngBoundsForCameraTarget(latLngBounds);
-                    }
-
-                    @Override
-                    public void onCancel() {
-                    }
-
-                });
-
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoom));
                 mMap.setMinZoomPreference(zoom);
 
 
@@ -190,41 +191,24 @@ public class RecordMapsActivity extends FragmentActivity
                         } else if (doubles.length == 3) {
                             markersMap.put(new LatLng(Double.valueOf(doubles[0]), Double.valueOf(doubles[1])), new MarkerContener(doubles[2]));
                         }
-                        /*
-                        try {
-                            markersMap.put(new LatLng(Double.valueOf(doubles[0]), Double.valueOf(doubles[1])), new MarkerContener(doubles[3]));
-                        }catch (ArrayIndexOutOfBoundsException e){
-                            markersMap.put(new LatLng(Double.valueOf(doubles[0]), Double.valueOf(doubles[1])), new MarkerContener());
-                        }
-                        */
                     }
-
                 }
-
-
                 break;
             }
-
         }
     }
 
-    private LocationRequest locationRequest;
-    private ImageView imageView;
-    private FloatingActionButton deleteButton;
-    private FloatingActionButton photoBut;
-    private FloatingActionButton closeButton;
-    private FloatingActionButton saveButton;
-    private FloatingActionButton rotateButton;
 
-    private static LatLng mCurrentMarkerLatLng;
-    private static Marker mCurrentMarker;
 
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             return;
         }
@@ -257,7 +241,6 @@ public class RecordMapsActivity extends FragmentActivity
 
             @Override
             public boolean onMarkerClick(Marker marker) {
-                //marker.remove();
                 imageView = (ImageView) findViewById(R.id.markerImageView);
                 rotateButton = (FloatingActionButton) findViewById(R.id.rotateButton);
                 photoBut = (FloatingActionButton) findViewById(R.id.photoButton);
@@ -276,48 +259,13 @@ public class RecordMapsActivity extends FragmentActivity
                 mCurrentMarkerLatLng=marker.getPosition();
                 for(Map.Entry<LatLng,MarkerContener> entry : markersMap.entrySet()){
                     if(entry.getKey().equals(mCurrentMarkerLatLng)){
-                        //markersMap.put(ll,new MarkerContener(mCurrentPhotoPath));
                         mCurrentPhotoPath=entry.getValue().getPhotoPath();
                         setPic();
                     }
                 }
-
-                //!!!!
-
-
-
                 return false;
             }
-
-
-
-
-
-
-
         });
-
-        /*
-        imageView = (ImageView) findViewById(R.id.markerImageView);
-        imageView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if(imageView.getScaleType()==ImageView.ScaleType.CENTER_CROP) {
-                    imageView.setScaleType(ImageView.ScaleType.CENTER);
-
-                }else if(imageView.getScaleType()==ImageView.ScaleType.CENTER) {
-                    imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                }
-
-                return false;
-            }
-
-        });
-        */
-
-
-
     }
 
     public void rotateImage(View view){
@@ -395,14 +343,8 @@ public class RecordMapsActivity extends FragmentActivity
 
     }
 
-
-    private LatLng mCurrentLatLng;
-    private Polyline line;
-
     @Override
     public void onLocationChanged(Location location) {
-
-
 
         mCurrentLatLng = new LatLng(location.getLatitude(),location.getLongitude());
         if( !pathList.contains(new LatLng(location.getLatitude(), location.getLongitude())) ){
@@ -422,50 +364,35 @@ public class RecordMapsActivity extends FragmentActivity
     @Override
     public void onConnected(@Nullable Bundle bundle) {
 
-
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(1000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        //LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
-
     }
 
-    private String pathListString = "";
-
-    private String markersString="";
-
-
-
-    //TODO
-    @Override
-    public void finish() {
-
+    private void saveToDB(){
         if(pathList.size()!=0) {
             for (LatLng ll : pathList) {
                 pathListString += ll.latitude + "," + ll.longitude + "\n";
             }
             database.updateData(intent.getExtras().getInt("id"), pathListString);
         }
-
         if(markersMap.keySet().size()!=0) {
             for (Map.Entry<LatLng,MarkerContener> entry : markersMap.entrySet()) {
 
 
-                    markersString += entry.getKey().latitude +
-                            "," + entry.getKey().longitude +
-                            "," + entry.getValue().getPhotoPath() + "\n";
+                markersString += entry.getKey().latitude +
+                        "," + entry.getKey().longitude +
+                        "," + entry.getValue().getPhotoPath() + "\n";
 
             }
-
-
             database.updateMarkers(intent.getExtras().getInt("id"), markersString);
         }
+    }
+
+    @Override
+    public void finish() {
+        saveToDB();
         super.finish();
     }
 
@@ -491,20 +418,16 @@ public class RecordMapsActivity extends FragmentActivity
 
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this );
             button.setSelected(false);
-            //tb.setBackgroundDrawable(getResources().getDrawable(R.drawable.quantum_ic_pause_circle_filled_grey600_36));
             timer.stop();
         }
     }
 
     public void addMarker(View view){
-
         if(mCurrentLatLng==null){
-
         }else{
             mMap.addMarker(new MarkerOptions().position(mCurrentLatLng));
             markersMap.put(mCurrentLatLng, new MarkerContener());
         }
-
     }
 
     @Override
@@ -513,39 +436,10 @@ public class RecordMapsActivity extends FragmentActivity
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
 
-    private static final int REQUEST_TAKE_PHOTO = 1;
-    private final String AUTHORITY = "com.example.android.fileprovider";
-    private final String FILE_NAME_FORMAT = "JPEG_";
-    private final String FILE_FORMAT = ".jpg";
-    private final String DATE_FORMAT = "yyyyMMdd_HHmmss";
 
-    private static String mCurrentPhotoPath;
 
     public void dispatchTakePictureIntent(View button) {
-        //SAVE!!!
-        if(pathList.size()!=0) {
-            for (LatLng ll : pathList) {
-                pathListString += ll.latitude + "," + ll.longitude + "\n";
-            }
-            database.updateData(intent.getExtras().getInt("id"), pathListString);
-        }
-
-        if(markersMap.keySet().size()!=0) {
-            for (Map.Entry<LatLng,MarkerContener> entry : markersMap.entrySet()) {
-
-
-                markersString += entry.getKey().latitude +
-                        "," + entry.getKey().longitude +
-                        "," + entry.getValue().getPhotoPath() + "\n";
-
-            }
-
-
-            database.updateMarkers(intent.getExtras().getInt("id"), markersString);
-        }
-        //SAVE!!!
-
-
+        saveToDB();
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -583,14 +477,8 @@ public class RecordMapsActivity extends FragmentActivity
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
 
-
-
         return image;
     }
-
-    private final int PHOTO_SCALE = 10;
-
-    //private static ImageView mImageView; //??!!
 
     public void setPic() {
         ImageView mImageView = (ImageView) findViewById(R.id.markerImageView);
@@ -613,13 +501,9 @@ public class RecordMapsActivity extends FragmentActivity
         mImageView.setImageBitmap(bitmap);
     }
 
-
-
     @Override
     protected void onStart() {
-        if(mCurrentPhotoPath!=null) {
-            setPic();
-        }
+        if(mCurrentPhotoPath!=null) {setPic();}
             super.onStart();
     }
 

@@ -64,14 +64,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    private final int  animationDuration = 500;
+    private final int animFromAlpha = 0;
+    private final int animToAlpha = 1;
+
     public void snapMapFragment(View view){
 
         ViewGroup layout = (ViewGroup) findViewById(R.id.activity_maps);
+        Animation fadeIn = new AlphaAnimation(animFromAlpha, animToAlpha);
 
-        Animation fadeIn = new AlphaAnimation(0, 1);
         fadeIn.setInterpolator(new DecelerateInterpolator());
-        fadeIn.setDuration(500);
-
+        fadeIn.setDuration(animationDuration);
         layout.startAnimation(fadeIn);
 
         mapName = (TextView) findViewById(R.id.setMapName);
@@ -83,29 +86,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         zoom=mMap.getCameraPosition().zoom;
 
         mapName.setVisibility(View.VISIBLE);
-        Geocoder gc = new Geocoder(this);
 
+        setAdressName();
+
+
+        saveButton.setVisibility(View.VISIBLE);
+        findViewById(R.id.closePanel).setVisibility(View.VISIBLE);
+    }
+
+    private String BASIC_ADRESS="no name";
+    private void setAdressName(){
+
+        Geocoder gc = new Geocoder(this);
         Address ad;
         try {
             ad = gc.getFromLocation(mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude(),1).get(0);
             mapName.setText(ad.getLocality()+", "+ad.getAddressLine(0));
         } catch (Exception e) {
-            mapName.setText("no name");
+            mapName.setText(BASIC_ADRESS);
         }
-
-        saveButton.setVisibility(View.VISIBLE);
-        findViewById(R.id.closePanel).setVisibility(View.VISIBLE);
-
-
-
     }
 
-    public void searchAddress(View view)
-    {
+    private int ZOOM_LEVEL = 14;
+    public void searchAddress(View view) {
+
         EditText searchEditView = (EditText)findViewById(R.id.searchEditView);
-
         String locationName = searchEditView.getText().toString();
-
         List<Address> addressList = null;
         if(locationName != null || !locationName.equals(""))
         {
@@ -120,8 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Address address = addressList.get(0);
             LatLng latLng = new LatLng(address.getLatitude() , address.getLongitude());
-            //mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_LEVEL));
 
         }
     }

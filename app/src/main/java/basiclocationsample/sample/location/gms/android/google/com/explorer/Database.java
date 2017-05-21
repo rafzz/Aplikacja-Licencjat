@@ -24,10 +24,10 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
         private static final String DB_NAME = "explorerData.db";
 
         //NEED TO INCREMENT BEFORE NEW INSTALATION OF APP
-        private static final int VERSION = 27;
+        private static final int VERSION = 29;
 
         public Database(Context context) {
-            super(context, DB_NAME, null,1);
+            super(context, DB_NAME, null,VERSION);
         }
 
         @Override
@@ -49,9 +49,9 @@ package basiclocationsample.sample.location.gms.android.google.com.explorer;
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             // If you need to add a column
             if (newVersion > oldVersion) {
-                db.execSQL("ALTER TABLE area ADD COLUMN name text");
-                db.execSQL("ALTER TABLE area ADD COLUMN path text");
-                db.execSQL("ALTER TABLE area ADD COLUMN markers text");
+                //db.execSQL("ALTER TABLE area ADD COLUMN name text");
+                //db.execSQL("ALTER TABLE area ADD COLUMN path text");
+                //db.execSQL("ALTER TABLE area ADD COLUMN markers text");
             }
         }
 

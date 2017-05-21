@@ -29,6 +29,8 @@ import com.google.android.gms.plus.model.people.Person;
 public class LoadFragment extends AppCompatActivity implements OnMapReadyCallback{
 
     private Database database;
+    private ViewGroup layout;
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,15 +43,9 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.mapFragment2);
         mapFragment.getMapAsync(this);
 
-
-
-
         loadDB();
 
     }
-
-    ViewGroup layout;
-    private GoogleMap mMap;
 
     public void loadDB(){
         int id;
@@ -59,12 +55,8 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
         float zoom;
         LatLng target;
 
-
-
         database = new Database(this);
-
         Cursor cursor = database.writeAllData();
-
         layout = (ViewGroup) findViewById(R.id.tableLayout);
 
         while(cursor.moveToNext()){
@@ -74,7 +66,6 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
             lat = cursor.getDouble(2);
             lng = cursor.getDouble(3);
             zoom = cursor.getFloat(4);
-            //target = new LatLng(lat,lng);
 
             RadioButton radioButton = new RadioButton(this);
             radioButton.setTextSize(50);
@@ -82,7 +73,6 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
             radioButton.setOnClickListener(onClickListener);
 
             Bundle bundle = new Bundle();
-            //bundle.putInt("id",id);
             bundle.putDouble("lat",lat);
             bundle.putDouble("lng",lng);
             bundle.putFloat("zoom",zoom);
@@ -97,15 +87,18 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    private final int  animationDuration = 1000;
+    private final int animFromAlpha = 0;
+    private final int animToAlpha = 1;
+
     private View.OnClickListener onClickListener = new View.OnClickListener() {
 
         public void onClick(View view) {
 
             view.setSelected(true);
-
-            Animation fadeIn = new AlphaAnimation(0, 1);
-            fadeIn.setInterpolator(new DecelerateInterpolator()); //add this
-            fadeIn.setDuration(1000);
+            Animation fadeIn = new AlphaAnimation(animFromAlpha, animToAlpha);
+            fadeIn.setInterpolator(new DecelerateInterpolator());
+            fadeIn.setDuration(animationDuration);
             view.startAnimation(fadeIn);
 
             Bundle bundle = (Bundle) view.getTag();
@@ -115,47 +108,20 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
                             bundle.getDouble("lng")),
                     bundle.getFloat("zoom")));
 
-           // RadioGroup radioGroup = (RadioGroup) findViewById(R.id.tableLayout);
-            //Button b = (Button) findViewById(R.id.button2);
-            //b.setText(String.valueOf(radioGroup.getCheckedRadioButtonId()));
         }
     };
 
-    public void loadMapToMain(View view){
+    public void loadMapToRecordActivity(View view){
+
         Intent intent = new Intent(this, RecordMapsActivity.class);
-
-        //layout = (ViewGroup) findViewById(R.id.tableLayout);
-
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.tableLayout);
-
-
-        /*
-        Bundle bundle = new Bundle();
-        bundle.putInt("id", radioGroup.getCheckedRadioButtonId());
-        bundle.putDouble("lat",mMap.getCameraPosition().target.latitude);
-        bundle.putDouble("lng",mMap.getCameraPosition().target.longitude);
-        bundle.putFloat("zoom",mMap.getCameraPosition().zoom);
-
-        intent.putExtras(bundle);
-        */
         intent.putExtra("id",radioGroup.getCheckedRadioButtonId());
 
-        //bez wybranego
-       if(radioGroup.getCheckedRadioButtonId()!=-1){
-
-           startActivity(intent);
-       }
-
-
-
-
-
-
-
+       if(radioGroup.getCheckedRadioButtonId()!=-1){ startActivity(intent); }
 
     }
 
-    public void deleteArea(View view){
+    public void deleteMap(View view){
         database = new Database(this);
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.tableLayout);
         database.removeData(radioGroup.getCheckedRadioButtonId());
@@ -163,17 +129,10 @@ public class LoadFragment extends AppCompatActivity implements OnMapReadyCallbac
         radioGroup.refreshDrawableState();
     }
 
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         mMap = googleMap;
-
         googleMap.getUiSettings().setScrollGesturesEnabled(false);
         googleMap.getUiSettings().setZoomGesturesEnabled(false);
-
     }
-
-
 }
